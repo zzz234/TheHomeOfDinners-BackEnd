@@ -9,13 +9,12 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+# D:\Projects\PythonProjects\PycharmProjects\TheHomeOfDinners
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
@@ -27,9 +26,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
+# 注册应用
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -37,6 +36,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'rest_framework',  # DRF
 ]
 
 MIDDLEWARE = [
@@ -69,17 +70,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'TheHomeOfDinners.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',  # 处理器使用的数据库,这里是mysql
+        'NAME': 'the_home_of_dinners',  # mysql数据库名字
+        'USER': 'root',  # mysql数据库用户
+        'PASSWORD': 'root',  # 密码
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -99,7 +102,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
@@ -113,8 +115,49 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# # 日志
+# LOGGING = {
+#     'version': 1,  # 指明dictConnfig的版本，目前就只有一个版本，哈哈
+#     'disable_existing_loggers': False,  # 是否禁用所有的已经存在的日志配置
+#     'formatters': {  # 日志信息显示的格式
+#         'verbose': {  # 详细
+#             'format': '%(levelname)s %(asctime)s %(module)s %(lineno)d %(message)s'
+#         },
+#         'simple': {  # 简单
+#             'format': '%(levelname)s %(module)s %(lineno)d %(message)s'
+#         },
+#     },
+#     'filters': {  # 对日志进行过滤
+#         'require_debug_true': {  # django再debug模式下才输出日志
+#             '()': 'django.utils.log.RequireDebugTrue',
+#         }
+#     },
+#     'handlers': {  # 日志处理方法
+#         'console': {  # 向终端输出日志
+#             'level': 'INFO',
+#             'filters': ['require_debug_true'],
+#             'class': 'logging.StreamHandler',
+#             'formatter': 'simple',
+#         },
+#         'file': {  # 向文件中输出日志
+#             'level': 'INFO',
+#             'class': 'logging.handlers.RotatingFileHandler',
+#             'filename': os.path.join(os.path.dirname(BASE_DIR), "logs/logs.log"),  # 目标日志文件位置
+#             'maxBytes': 30 * 1024 * 1024,
+#             'backupCount': 10,
+#             'formatter': 'verbose',
+#         }
+#     },
+#     'loggers': {  # 日志器
+#         'django': {  # 定义一个名为django的日志器
+#             'handlers': ['console', 'file'],
+#             'propagate': True,
+#             'level': 'INFO',
+#         },
+#     }
+# }
