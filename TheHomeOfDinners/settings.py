@@ -10,11 +10,16 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
+import sys
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # D:\Projects\PythonProjects\PycharmProjects\TheHomeOfDinners
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# 追加系统导包路径（目的：1、注册子应用时，写的方便点 2、自己指定用户类）
+sys.path.insert(0, os.path.join(BASE_DIR, 'TheHomeOfDinners', 'apps'))
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
@@ -38,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',  # DRF
+
+    'users.apps.UsersConfig',  # 用户模块
 ]
 
 MIDDLEWARE = [
@@ -119,6 +126,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# 修改Django认证系统的用户模型类
+AUTH_USER_MODEL = 'users.User'
 
 # # 日志
 # LOGGING = {
