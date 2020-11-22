@@ -20,5 +20,6 @@ from django.urls import path
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    url(r'^', include('verification.urls'))  # 发短信模块
+    url(r'^', include('verification.urls')),  # 发短信模块
+    url(r'^', include('users.urls')),  # 用户模块
 ]

@@ -1,9 +1,9 @@
 from random import randint
-
-from django.shortcuts import render
+import parameters
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from ronglian_sms_sdk import SmsSDK
-from rest_framework.response import Response
+import time
 
 accId = '8a216da875e463e00175e9f089dd01bf'
 accToken = '15e2f16659e045f7becc0aee8e4e99cd'
@@ -15,7 +15,7 @@ def send_message(phone, data):
     发送验证码
     :param phone: 手机号
     :param data: 验证码
-    :return:
+    :return: 接口调用结果
     """
 
     sdk = SmsSDK(accId, accToken, appId)
@@ -33,8 +33,11 @@ class SMSCodeView(APIView):
 
     def get(self, request, mobile):
         # 1.生成验证码
-        smscode = '%06d' % randint(0, 999999)
+        sms_code = '%06d' % randint(0, 999999)
         # 2.利用容联云通讯发送短信验证码
-        send_message(mobile, smscode)
+        send_message(mobile, sms_code)
+        parameters.mobile = mobile
+        parameters.sms_code = sms_code
+        parameters.w_time = time.time()
         # 3.响应
-        return Response({'message': 'ok'})
+        return Response({'message': 'ok', })
