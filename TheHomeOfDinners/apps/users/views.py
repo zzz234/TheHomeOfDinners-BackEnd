@@ -40,7 +40,7 @@ class MobileCountView(APIView):
 
     def get(self, request, mobile):
         # 查询数据库
-        count = User.objects.get(mobile=mobile)
+        count = User.objects.filter(mobile=mobile).count()
 
         # 包装响应数据
         data = {
@@ -52,10 +52,38 @@ class MobileCountView(APIView):
         return Response(data)
 
 
-class UserDetailView(ModelViewSet):
+class UserDetailView(APIView):
     """用户详细信息展示"""
-    serializer_class = UserDetailSerializer
-    queryset = User.objects.all()
+
+    # serializer_class = UserDetailSerializer
+
+    # queryset = User.objects.all()
+
+    def get(self, request, pk):
+        pk = int(pk)
+        user = User.objects.get(pk=pk)
+        serializer = UserDetailSerializer(user)
+        return Response(serializer.data)
+    # permission_classes = [IsAuthenticated]  # 指定权限，只有通过认证的用户才能访问当前视图
+
+    # def get_object(self):
+    #     return self.request.user
+
+
+class UserDetailByMobileView(APIView):
+    """用户详细信息展示"""
+
+    # serializer_class = UserDetailSerializer
+
+    # queryset = User.objects.all()
+
+    def get(self, request, mobile):
+        try:
+            user = User.objects.get(mobile=mobile)
+            serializer = UserDetailSerializer(user)
+            return Response(serializer.data)
+        except:
+            return Response({'message': 'No User!'})
     # permission_classes = [IsAuthenticated]  # 指定权限，只有通过认证的用户才能访问当前视图
 
     # def get_object(self):
