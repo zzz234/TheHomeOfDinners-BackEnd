@@ -5,6 +5,7 @@ from rest_framework import serializers
 
 import parameters
 from users.models import User
+from rest_framework_jwt.settings import api_settings
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -20,10 +21,11 @@ class CreateUserSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(label='确认密码', write_only=True)
     sms_code = serializers.CharField(label='验证码', write_only=True)
     allow = serializers.CharField(label='同意协议', write_only=True)
+    token = serializers.CharField(label='token', read_only=True)
 
     class Meta:
         model = User  # 从User模型中映射序列化器字段
-        fields = ['id', 'username', 'password', 'password2', 'mobile', 'sms_code', 'role', 'allow']
+        fields = ['id', 'username', 'password', 'password2', 'mobile', 'sms_code', 'role', 'allow', 'token']
         extra_kwargs = {  # 修改字段选项
             'username': {
                 'min_length': 5,
@@ -61,12 +63,12 @@ class CreateUserSerializer(serializers.ModelSerializer):
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError('两个密码不一致')
 
-        # 校验验证码
-        if time.time() - parameters.w_time > 300:
-            raise serializers.ValidationError('无效的验证码')
-
-        if attrs['mobile'] != parameters.mobile or attrs['sms_code'] != parameters.sms_code:
-            raise serializers.ValidationError('验证码错误')
+        # # 校验验证码
+        # if time.time() - parameters.w_time > 300:
+        #     raise serializers.ValidationError('无效的验证码')
+        #
+        # if attrs['mobile'] != parameters.mobile or attrs['sms_code'] != parameters.sms_code:
+        #     raise serializers.ValidationError('验证码错误')
 
         return attrs
 
@@ -81,6 +83,14 @@ class CreateUserSerializer(serializers.ModelSerializer):
         user = User(**validated_data)
         user.set_password(password)  # 将密码加密
         user.save()  # 存入数据库
+
+        jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER  # 引用jwt中的jwt_payload_handler函数（生产payload）
+        jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+
+        payload = jwt_payload_handler(user)  # 根据user生成用户相关的载荷
+        token = jwt_encode_handler(payload)  # 传入载荷生成jwt
+
+        user.token = token
 
         return user
 

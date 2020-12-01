@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 from users.models import User
 from users.serializers import CreateUserSerializer, UserDetailSerializer
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import BasicAuthentication
 from rest_framework.viewsets import ModelViewSet
 
 
@@ -52,39 +53,36 @@ class MobileCountView(APIView):
         return Response(data)
 
 
-class UserDetailView(APIView):
+# GET /user/
+class UserDetailView(RetrieveAPIView):
     """用户详细信息展示"""
-
-    # serializer_class = UserDetailSerializer
-
+    serializer_class = UserDetailSerializer
     # queryset = User.objects.all()
+    permission_classes = [IsAuthenticated]  # 指定权限，只有通过认证的用户才能访问当前视图
 
-    def get(self, request, pk):
-        pk = int(pk)
-        user = User.objects.get(pk=pk)
-        serializer = UserDetailSerializer(user)
-        return Response(serializer.data)
-    # permission_classes = [IsAuthenticated]  # 指定权限，只有通过认证的用户才能访问当前视图
+    # def get(self, request, pk):
+    #     pk = int(pk)
+    #     user = User.objects.get(pk=pk)
+    #     serializer = UserDetailSerializer(user)
+    #     return Response(serializer.data)
 
-    # def get_object(self):
-    #     return self.request.user
+    def get_object(self):
+        return self.request.user  # 因为已经确定了用户通过权限认证，所以此处的user不是匿名对象，有真实数据
 
-
-class UserDetailByMobileView(APIView):
-    """用户详细信息展示"""
-
-    # serializer_class = UserDetailSerializer
-
-    # queryset = User.objects.all()
-
-    def get(self, request, mobile):
-        try:
-            user = User.objects.get(mobile=mobile)
-            serializer = UserDetailSerializer(user)
-            return Response(serializer.data)
-        except:
-            return Response({'message': 'No User!'})
-    # permission_classes = [IsAuthenticated]  # 指定权限，只有通过认证的用户才能访问当前视图
-
-    # def get_object(self):
-    #     return self.request.user
+# class UserDetailByMobileView(APIView):
+#     """用户详细信息展示"""
+#
+#     serializer_class = UserDetailSerializer
+#     # queryset = User.objects.all()
+#     permission_classes = [IsAuthenticated]  # 指定权限，只有通过认证的用户才能访问当前视图
+#
+#     def get(self, request, mobile):
+#         try:
+#             user = User.objects.get(mobile=mobile)
+#             serializer = UserDetailSerializer(user)
+#             return Response(serializer.data)
+#         except:
+#             return Response({'message': 'No User!'})
+#
+#     # def get_object(self):
+#     #     return self.request.user

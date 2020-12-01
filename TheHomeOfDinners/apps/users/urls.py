@@ -1,6 +1,6 @@
 from django.conf.urls import url, include
 from django.urls import path
-
+from rest_framework_jwt.views import obtain_jwt_token
 from . import views
 from rest_framework.routers import SimpleRouter
 
@@ -14,11 +14,16 @@ urlpatterns = [
     url(r'^usernames/(?P<username>\w{5,20})/count/$', views.UsernameCountView.as_view()),  # \w表示字母数字下划线
     # 判断手机号是否已注册
     url(r'^mobiles/(?P<mobile>1[3-9]\d{9})/count/$', views.MobileCountView.as_view()),
+    # JWT登录
+    url(r'^login/$', obtain_jwt_token),  # 内部认证代码还是Django中的  登录成功生成token
+
+    # 获取用户详情
+    url(r'^user/$', views.UserDetailView.as_view()),
 
     # 查询指定id用户
-    url(r'^user/(?P<pk>\d)/$', views.UserDetailView.as_view()),
+    # url(r'^user/(?P<pk>\d)/$', views.UserDetailView.as_view()),
     # path('user/<int:pk>/', views.UserDetailView.as_view()),
     # 根据手机号查询用户
-    url(r'^user/(?P<mobile>1[3-9]\d{9})/$', views.UserDetailByMobileView.as_view()),
+    # url(r'^user/(?P<mobile>1[3-9]\d{9})/$', views.UserDetailByMobileView.as_view()),
 ]
 # urlpatterns += router.urls

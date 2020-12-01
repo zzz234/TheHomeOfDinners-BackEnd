@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
+import datetime
 import os
 import sys
 from pathlib import Path
@@ -131,6 +132,15 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+REST_FRAMEWORK = {
+    # 认证
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',  # JWT认证类，放在第一位是默认项
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+}
+
 # 修改Django认证系统的用户模型类
 AUTH_USER_MODEL = 'users.User'
 
@@ -167,6 +177,17 @@ CORS_ALLOW_CREDENTIALS = True
 # 允许所有主机执行跨站点请求，默认为False
 # 如果没设置该参数，则必须设置白名单，运行部分白名单的主机才能执行跨站点请求
 CORS_ORIGIN_ALLOW_ALL = True
+
+# JWT的有效期
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),  # JWT有效期
+
+    # 修改JWT登录视图的构造响应数据的函数
+    'JWT_RESPONSE_PAYLOAD_HANDLER': 'users.utils.jwt_response_payload_handler',
+}
+
+# 修改Django后端认证的类
+AUTHENTICATION_BACKENDS = ['users.utils.UsernameMobileAuthBackend']
 
 # # 日志
 # LOGGING = {
