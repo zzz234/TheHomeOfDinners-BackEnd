@@ -100,4 +100,15 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'mobile']
+        fields = ['id', 'username', 'mobile', 'password']
+        extra_kwargs = {  # 修改字段选项
+            'password': {
+                'write_only': True,
+                'min_length': 8,
+                'max_length': 20,
+                'error_messages': {
+                    'min_length': '仅允许5-20个字符的密码',
+                    'max_length': '仅允许5-20个字符的密码',
+                }
+            },
+        }

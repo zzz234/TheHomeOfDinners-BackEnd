@@ -53,9 +53,8 @@ class MobileCountView(APIView):
         return Response(data)
 
 
-# GET /user/
 class UserDetailView(RetrieveAPIView):
-    """用户详细信息展示"""
+    """用户详细信息操作视图"""
     serializer_class = UserDetailSerializer
     # queryset = User.objects.all()
     permission_classes = [IsAuthenticated]  # 指定权限，只有通过认证的用户才能访问当前视图
@@ -67,22 +66,17 @@ class UserDetailView(RetrieveAPIView):
     #     return Response(serializer.data)
 
     def get_object(self):
+        # 返回当前user对象
         return self.request.user  # 因为已经确定了用户通过权限认证，所以此处的user不是匿名对象，有真实数据
 
-# class UserDetailByMobileView(APIView):
-#     """用户详细信息展示"""
-#
-#     serializer_class = UserDetailSerializer
-#     # queryset = User.objects.all()
-#     permission_classes = [IsAuthenticated]  # 指定权限，只有通过认证的用户才能访问当前视图
-#
-#     def get(self, request, mobile):
-#         try:
-#             user = User.objects.get(mobile=mobile)
-#             serializer = UserDetailSerializer(user)
-#             return Response(serializer.data)
-#         except:
-#             return Response({'message': 'No User!'})
-#
-#     # def get_object(self):
-#     #     return self.request.user
+    def put(self, request):
+        # 修改user属性
+        user = self.request.user
+        if 'username' in request.data:
+            user.username = request.data['username']
+        if 'password' in request.data:
+            password = request.data['password']
+            user.set_password(password)
+        user.save()
+        return Response(self.get_serializer_class()(user).data)
+
