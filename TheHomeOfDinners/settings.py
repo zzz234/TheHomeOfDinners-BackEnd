@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'corsheaders',  # 解决跨域CORS
 
     'users.apps.UsersConfig',  # 用户模块
-
+    'restaurant.apps.RestaurantConfig',  # 餐馆模块
 ]
 
 MIDDLEWARE = [
