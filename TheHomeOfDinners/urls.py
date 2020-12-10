@@ -22,4 +22,5 @@ urlpatterns = [
 
     url(r'^', include('verification.urls')),  # 发短信模块
     url(r'^', include('users.urls')),  # 用户模块
+    url(r'^', include('restaurant.urls')),  # 餐馆模块
 ]

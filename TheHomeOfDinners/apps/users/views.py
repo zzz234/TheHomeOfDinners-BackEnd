@@ -78,5 +78,16 @@ class UserDetailView(RetrieveAPIView):
             password = request.data['password']
             user.set_password(password)
         user.save()
-        return Response(self.get_serializer_class()(user).data)
+        return Response(self.get_serializer(user).data)
 
+    def delete(self, request):
+        # 删除user
+        if 'password' not in request.data:
+            return Response({'message': 'need password!'})
+        password = request.data['password']
+        user = self.request.user
+        if user.check_password(password):
+            user.delete()
+            return Response({'message': 'delete successful!'})
+        else:
+            return Response({'message': 'password error!'})

@@ -1,15 +1,23 @@
 from django.db import models
 
+from users.models import User
+
 
 class Restaurant(models.Model):
+    VERIFY = (
+        (0, '审核中'),
+        (1, '审核通过'),
+        (2, '审核未通过'),
+    )
     res_name = models.CharField(max_length=20, unique=True, verbose_name='餐馆名称')
-    owner = models.IntegerField(verbose_name='餐馆创建者')
+    # 设置创建者外键，当创建者注销时，餐馆也被注销
+    owner = models.ForeignKey(to=User, on_delete=models.CASCADE, verbose_name='餐馆创建者', related_name='restaurant_owner')
     res_address = models.CharField(max_length=200, unique=True, verbose_name='餐馆地址')
-    picture = models.CharField(max_length=400, verbose_name='餐馆封面图片')
-    score = models.FloatField(verbose_name='餐馆评分')
-    business_time = models.CharField(max_length=100, verbose_name='营业时间')
-    mobile = models.CharField(max_length=11, unique=True, verbose_name='手机号')
-    verify = models.CharField(max_length=1, verbose_name='审核状态(0-审核中，1-审核通过，-1-审核未通过)')
+    picture = models.CharField(max_length=400, verbose_name='餐馆封面图片', null=True)
+    score = models.FloatField(verbose_name='餐馆评分', default=0)
+    business_time = models.CharField(max_length=100, verbose_name='营业时间', null=True)
+    mobile = models.CharField(max_length=11, unique=True, verbose_name='联系方式')
+    verify = models.CharField(max_length=1, choices=VERIFY, verbose_name='审核状态(0-审核中，1-审核通过，-1-审核未通过)')
 
     class Meta:
         db_table = 'tb_restaurant'
@@ -18,10 +26,12 @@ class Restaurant(models.Model):
 
 
 class Menu(models.Model):
-    restaurant = models.IntegerField(verbose_name='所属餐馆')
+    # 设置所属餐馆外键，当餐馆注销时，菜单也被注销
+    restaurant = models.ForeignKey(to=Restaurant, on_delete=models.CASCADE, verbose_name='所属餐馆',
+                                   related_name='menu_restaurant')
     name = models.CharField(max_length=20, verbose_name='菜品名称')
-    picture = models.CharField(max_length=400, verbose_name='菜品封面图片')
-    recommendations = models.IntegerField(verbose_name='推荐数')
+    picture = models.CharField(max_length=400, verbose_name='菜品封面图片', null=True)
+    recommendations = models.IntegerField(verbose_name='推荐数', default=0)
     price = models.FloatField(verbose_name='单价')
 
     class Meta:
@@ -31,8 +41,12 @@ class Menu(models.Model):
 
 
 class Review(models.Model):
-    user = models.IntegerField(verbose_name='所属用户')
-    restaurant = models.IntegerField(verbose_name='所属餐馆')
+    # 设置发布评论者外键，当用户注销时，评论仍被保留
+    user = models.ForeignKey(to=User, on_delete=models.SET_NULL, null=True, verbose_name='评论发布者',
+                             related_name='review_owner')
+    # 设置所属餐馆外键，当餐馆注销时，评论也被注销
+    restaurant = models.ForeignKey(to=Restaurant, on_delete=models.CASCADE, verbose_name='所属餐馆',
+                                   related_name='review_restaurant')
     datetime = models.DateTimeField(verbose_name='评论时间')
     text = models.CharField(max_length=1000, verbose_name='评论内容')
     score = models.FloatField(verbose_name='餐馆评分')
@@ -45,8 +59,11 @@ class Review(models.Model):
 
 
 class Collection(models.Model):
-    user = models.IntegerField(verbose_name='所属用户')
-    restaurant = models.IntegerField(verbose_name='所属餐馆')
+    # 设置用户外键，当用户注销时，收藏被删除
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE, verbose_name='评论发布者', related_name='collection_owner')
+    # 设置餐馆外键，当餐馆注销时，收藏被保留
+    restaurant = models.ForeignKey(to=Restaurant, on_delete=models.SET_NULL, null=True, verbose_name='所属餐馆',
+                                   related_name='collection_restaurant')
     datetime = models.DateTimeField(verbose_name='评论时间')
 
     class Meta:
@@ -56,11 +73,12 @@ class Collection(models.Model):
 
 
 class Pictures(models.Model):
-    FLAGS = (
+    OWNER = (
         (1, '餐馆图片'),
         (2, '菜单图片'),
         (3, '评论图片'),
     )
+    owner = models.CharField(max_length=1, choices=OWNER, verbose_name='图片创建者')
     picture = models.CharField(max_length=400, verbose_name='餐馆封面图片')
 
     class Meta:

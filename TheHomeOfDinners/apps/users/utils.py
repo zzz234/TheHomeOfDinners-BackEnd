@@ -13,6 +13,7 @@ def jwt_response_payload_handler(token, user=None, request=None):
         'token': token,
         'user_id': user.id,
         'username': user.username,
+        'role': user.role,
     }
 
 
@@ -37,10 +38,13 @@ class UsernameMobileAuthBackend(ModelBackend):
     """修改Django的认证类，为了实现多账号登录"""
 
     def authenticate(self, request, username=None, password=None, **kwargs):
+        # 对从username中取出role
+        role = username[0]
+        username = username[1:]
         # 获取user
         user = get_user_by_account(username)
 
         # 判断传入的密码是否正确
-        if user and user.check_password(password):
+        if user and user.check_password(password) and user.role == role:
             # 返回user
             return user

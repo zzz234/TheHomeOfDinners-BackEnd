@@ -26,6 +26,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User  # 从User模型中映射序列化器字段
         fields = ['id', 'username', 'password', 'password2', 'mobile', 'sms_code', 'role', 'allow', 'token']
+        # read_only_fields = [] #也可以通过read_only_fields指定只读字段
         extra_kwargs = {  # 修改字段选项
             'username': {
                 'min_length': 5,
@@ -100,7 +101,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'mobile', 'password']
+        fields = ['id', 'username', 'mobile', 'password', 'role']
         extra_kwargs = {  # 修改字段选项
             'password': {
                 'write_only': True,
