@@ -230,3 +230,21 @@ AUTHENTICATION_BACKENDS = ['users.utils.UsernameMobileAuthBackend']
 #         },
 #     }
 # }
+# 在日志中打印数据库语句
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django.db.backends': {
+            'handlers': ['console'],
+            'propagate': True,
+            'level': 'DEBUG',
+        }
+    },
+}

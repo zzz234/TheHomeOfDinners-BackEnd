@@ -7,9 +7,9 @@ from django.contrib.auth.models import AbstractUser
 class User(AbstractUser):
     """自定义用户模型类，需在配置文件中重新指定默认用户模型类"""
     ROLE = (
-        (0, '管理员'),
-        (1, '用户'),
-        (2, '商家'),
+        ('0', '管理员'),
+        ('1', '用户'),
+        ('2', '商家'),
     )
     mobile = models.CharField(max_length=11, unique=True, verbose_name='手机号')
     picture = models.CharField(max_length=400, verbose_name='用户头像')

@@ -1,3 +1,5 @@
+import re
+
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, GenericAPIView, RetrieveAPIView
@@ -22,7 +24,10 @@ class UserView(CreateAPIView):
 class UsernameCountView(APIView):
     """判断用户是否已注册"""
 
-    def get(self, request, username):
+    def get(self, request):
+        username = request.GET['username']
+        if not re.match(r'\w{5,20}$', username):
+            return Response({'message': '用户名格式错误'})
         # 查询user表
         count = User.objects.filter(username=username).count()
 
@@ -39,7 +44,10 @@ class UsernameCountView(APIView):
 class MobileCountView(APIView):
     """判断用户是否已注册"""
 
-    def get(self, request, mobile):
+    def get(self, request):
+        mobile = request.GET['mobile']
+        if not re.match(r'1[3-9]\d{9}', mobile):
+            return Response({'message': '用户名格式错误'})
         # 查询数据库
         count = User.objects.filter(mobile=mobile).count()
 
@@ -57,7 +65,7 @@ class UserDetailView(RetrieveAPIView):
     """用户详细信息操作视图"""
     serializer_class = UserDetailSerializer
     # queryset = User.objects.all()
-    permission_classes = [IsAuthenticated]  # 指定权限，只有通过认证的用户才能访问当前视图
+    # permission_classes = [IsAuthenticated]  # 指定权限，只有通过认证的用户才能访问当前视图
 
     # def get(self, request, pk):
     #     pk = int(pk)

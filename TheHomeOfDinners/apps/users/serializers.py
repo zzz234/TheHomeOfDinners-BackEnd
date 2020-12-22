@@ -38,7 +38,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
             },
             'password': {
                 'write_only': True,
-                'min_length': 8,
+                'min_length': 5,
                 'max_length': 20,
                 'error_messages': {
                     'min_length': '仅允许5-20个字符的密码',
