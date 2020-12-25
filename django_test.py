@@ -4,6 +4,7 @@ import os
 import sys
 
 
+
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'TheHomeOfDinners.settings')
@@ -11,7 +12,9 @@ def main():
     django.setup()
 
     # Test1()
-    Test2()
+    # Test2()
+    # Test3()
+    Test4()
 
 
 def Test1():
@@ -40,10 +43,39 @@ def Test1():
     tag12.restaurant.set(l12)
     # tag.restaurant.add(8)
 
+
 def Test2():
-    from restaurant.models import Tag,Restaurant
-    restaurant = Restaurant.objects.get(pk=45).Tag.all()
+    from restaurant.models import Tag, Restaurant
+    params = ['小吃', '四方坪']
+    restaurant = Restaurant.objects.filter(tag__tag_name=params[0]).filter(tag__tag_name=params[1])
+    print(restaurant.count())
+    # from restaurant.serializers import RestaurantSerializer
+    # serializer = RestaurantSerializer(instance=restaurant, many=True)
+    # print(serializer.data)
+
+
+def Test3():
+    from restaurant.models import Tag
+    tag_types = Tag.objects.values_list('tag_type').distinct()
+    res = {}
+    for tag_type in tag_types:
+        res[Tag.objects.filter(tag_type=tag_type[0]).first().get_tag_type_display()] = []
+    print(res)
+    tags = Tag.objects.values_list('tag_type', 'tag_name')
+    for tag in tags:
+        res[Tag.objects.filter(tag_type=tag[0]).first().get_tag_type_display()].append(tag[1])
+    print(tags)
+
+
+def Test4():
+    from users.models import User
+
+    from restaurant.models import Restaurant
+    from restaurant.models import Collection
+    # restaurants = Collection.objects.filter(user=6).values_list('restaurant')
+    restaurant = Restaurant.objects.filter(restaurant_collection__user_id=2)
     print(restaurant)
+
 
 if __name__ == '__main__':
     main()

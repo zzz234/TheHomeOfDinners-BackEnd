@@ -7,7 +7,7 @@ class Restaurant(models.Model):
     VERIFY = (
         ('0', '审核中'),
         ('1', '审核通过'),
-        ('-1', '审核未通过'),
+        ('2', '审核未通过'),
     )
     res_name = models.CharField(max_length=40, unique=True, verbose_name='餐馆名称')
     # 设置创建者外键，当创建者注销时，餐馆也被注销
@@ -17,7 +17,7 @@ class Restaurant(models.Model):
     score = models.FloatField(verbose_name='餐馆评分', default=0)
     business_time = models.CharField(max_length=100, verbose_name='营业时间', null=True)
     mobile = models.CharField(max_length=11, unique=True, verbose_name='联系方式')
-    verify = models.CharField(max_length=2, choices=VERIFY, verbose_name='审核状态(0-审核中，1-审核通过，-1-审核未通过)', default='0')
+    verify = models.CharField(max_length=2, choices=VERIFY, verbose_name='审核状态(0-审核中，1-审核通过，2-审核未通过)', default='0')
 
     class Meta:
         db_table = 'tb_restaurant'
@@ -64,12 +64,14 @@ class Collection(models.Model):
     # 设置餐馆外键，当餐馆注销时，收藏被保留
     restaurant = models.ForeignKey(to=Restaurant, on_delete=models.SET_NULL, null=True, verbose_name='所属餐馆',
                                    related_name='restaurant_collection')
-    datetime = models.DateTimeField(verbose_name='评论时间')
+    datetime = models.DateTimeField(verbose_name='评论时间', auto_now_add=True)
 
     class Meta:
         db_table = 'tb_collection'
         verbose_name = '收藏'
         verbose_name_plural = verbose_name
+        unique_together = ["user", "restaurant"]
+        index_together = ["user", "restaurant"]
 
 
 class Pictures(models.Model):
@@ -78,7 +80,8 @@ class Pictures(models.Model):
         ('2', '菜单图片'),
         ('3', '评论图片'),
     )
-    owner = models.CharField(max_length=1, choices=OWNER, verbose_name='图片创建者')
+    owner_type = models.CharField(max_length=1, choices=OWNER, verbose_name='图片所属者')
+    owner_id = models.IntegerField(verbose_name='图片所属者ID')
     picture = models.CharField(max_length=400, verbose_name='餐馆封面图片')
 
     class Meta:
@@ -88,7 +91,12 @@ class Pictures(models.Model):
 
 
 class Tag(models.Model):
-    restaurant = models.ManyToManyField(Restaurant, verbose_name='对应餐馆', related_name='Tag')
+    TAG_TYPE = (
+        (1, '种类'),
+        (2, '地区'),
+    )
+    restaurant = models.ManyToManyField(Restaurant, verbose_name='对应餐馆', related_name='tag')
+    tag_type = models.IntegerField(choices=TAG_TYPE, verbose_name='标签种类')
     tag_name = models.CharField(max_length=20, verbose_name='标签名')
 
     class Meta:

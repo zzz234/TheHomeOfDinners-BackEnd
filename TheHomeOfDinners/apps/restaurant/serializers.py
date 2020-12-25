@@ -2,18 +2,14 @@ import re
 
 from rest_framework import serializers
 
-from restaurant.models import Restaurant
+from restaurant.models import Restaurant, Tag, Collection
 
 
 class RestaurantSerializer(serializers.ModelSerializer):
-    """餐馆序列化器"""
-
-    # ['res_name','owner','res_address','picture','score','business_time','mobile','verify']
+    # 餐馆序列化器
     class Meta:
         model = Restaurant
         fields = '__all__'
-        # fields = ['id', 'res_name', 'owner', 'res_address', 'picture', 'score', 'business_time', 'mobile', 'verify']
-        # read_only_fields = ['verify']
 
     def validate_mobile(self, value):
         """单独校验手机号"""
@@ -27,3 +23,18 @@ class RestaurantSerializer(serializers.ModelSerializer):
         restaurant = Restaurant(**validated_data)
         restaurant.save()
         return restaurant
+
+
+class TagSerializer(serializers.ModelSerializer):
+    # 标签序列化器
+    class Meta:
+        model = Tag
+        fields = '__all__'
+
+
+class CollectionSerializer(serializers.ModelSerializer):
+    # 收藏序列化器
+    class Meta:
+        model = Collection
+        fields = '__all__'
+        read_only_fields = ['datetime']
