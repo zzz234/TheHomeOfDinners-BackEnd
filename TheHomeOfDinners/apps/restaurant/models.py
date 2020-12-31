@@ -13,7 +13,7 @@ class Restaurant(models.Model):
     # 设置创建者外键，当创建者注销时，餐馆也被注销
     owner = models.ForeignKey(to=User, on_delete=models.CASCADE, verbose_name='餐馆创建者', related_name='restaurant')
     res_address = models.CharField(max_length=200, unique=True, verbose_name='餐馆地址')
-    picture = models.CharField(max_length=400, verbose_name='餐馆封面图片', null=True)
+    picture = models.ImageField(upload_to='restaurant', null=True, blank=True, verbose_name='餐馆封面图片')
     score = models.FloatField(verbose_name='餐馆评分', default=0)
     business_time = models.CharField(max_length=100, verbose_name='营业时间', null=True)
     mobile = models.CharField(max_length=11, unique=True, verbose_name='联系方式')
@@ -47,10 +47,10 @@ class Review(models.Model):
     # 设置所属餐馆外键，当餐馆注销时，评论也被注销
     restaurant = models.ForeignKey(to=Restaurant, on_delete=models.CASCADE, verbose_name='所属餐馆',
                                    related_name='restaurant_review')
-    datetime = models.DateTimeField(verbose_name='评论时间')
+    datetime = models.DateTimeField(verbose_name='评论时间', auto_now_add=True)
     text = models.CharField(max_length=1000, verbose_name='评论内容')
     score = models.FloatField(verbose_name='餐馆评分')
-    depend = models.IntegerField(default=-1, verbose_name='从属评论')
+    depend = models.ForeignKey(to='self', blank=True, null=True, on_delete=models.CASCADE, verbose_name='所属评论')
 
     class Meta:
         db_table = 'tb_review'

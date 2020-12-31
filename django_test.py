@@ -4,7 +4,6 @@ import os
 import sys
 
 
-
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'TheHomeOfDinners.settings')
@@ -14,7 +13,9 @@ def main():
     # Test1()
     # Test2()
     # Test3()
-    Test4()
+    # Test4()
+    # Test5()
+    Test6()
 
 
 def Test1():
@@ -75,6 +76,18 @@ def Test4():
     # restaurants = Collection.objects.filter(user=6).values_list('restaurant')
     restaurant = Restaurant.objects.filter(restaurant_collection__user_id=2)
     print(restaurant)
+
+
+def Test5():
+    from users.models import User
+    user = User.objects.get(pk=8)
+    user.set_password('123456789')
+    user.save()
+
+def Test6():
+    from restaurant.models import Restaurant
+    restaurants = Restaurant.objects.all()
+
 
 
 if __name__ == '__main__':

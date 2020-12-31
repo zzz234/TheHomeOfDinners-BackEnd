@@ -6,10 +6,23 @@ from restaurant.models import Restaurant, Tag, Collection
 
 
 class RestaurantSerializer(serializers.ModelSerializer):
+    # 添加收藏数字段
+    collection_count = serializers.SerializerMethodField(label='收藏数')
+
+    # picture = serializers.ImageField(
+    #     max_length=None, use_url=True, allow_null=True, required=False)
+
+    # foods = serializers.CharField(label='菜品', read_only=True)
+
     # 餐馆序列化器
     class Meta:
         model = Restaurant
         fields = '__all__'
+
+    def get_collection_count(self, obj):
+        """获取餐馆的收藏数"""
+        count = obj.restaurant_collection.count()
+        return count
 
     def validate_mobile(self, value):
         """单独校验手机号"""

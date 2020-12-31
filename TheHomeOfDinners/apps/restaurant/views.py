@@ -1,21 +1,15 @@
-import re
+import os
 
 from django.db.models import Q
-from django.shortcuts import render
-
 # Create your views here.
 from rest_framework.decorators import action
-from rest_framework.generics import CreateAPIView, RetrieveAPIView
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 import parameters
-from users.models import User
-from .models import Restaurant, Tag, Collection
-from rest_framework.response import Response
-
 from restaurant.serializers import RestaurantSerializer, CollectionSerializer
-
+from .models import Restaurant, Tag, Collection
 from .utils import MyPageNumberPagination
 
 
@@ -24,10 +18,30 @@ class RestaurantModelViewSet(ModelViewSet):
     serializer_class = RestaurantSerializer
     pagination_class = MyPageNumberPagination
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+
+        # 删除之前的图片
+        os.remove(instance.picture.path)
+
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
+
 
 class TagRestaurantDetailView(APIView):
 
     def get(self, request, param):
+        """根据标签查询餐馆"""
+
         # 解析参数
         param1, param2 = None, None
         if 'c' in param:
@@ -53,6 +67,7 @@ class TagRestaurantDetailView(APIView):
 
 class TagDetailView(APIView):
     def get(self, request):
+        """获取标签数据"""
         if parameters.Tags:
             # 如果已经有缓存，则直接读取缓存
             return Response(parameters.Tags)
@@ -80,7 +95,7 @@ class CollectionModelViewSet(ModelViewSet):
 
     @action(methods=['get'], detail=True)
     def collection_count(self, request, pk):
-        # 获取餐馆被收藏的数目
+        """获取餐馆被收藏的数目"""
         count = Collection.objects.filter(restaurant=pk).count()
         return Response(count)
 
@@ -90,3 +105,10 @@ class CollectionModelViewSet(ModelViewSet):
         restaurants = Restaurant.objects.filter(restaurant_collection__user_id=pk)
         serializer = RestaurantSerializer(instance=restaurants, many=True)
         return Response(serializer.data)
+
+    @action(methods=['post'], detail=False)
+    def collected(self, request):
+        """检查是否收藏"""
+        user, restaurant = request.data['user'], request.data['restaurant']
+        count = Collection.objects.filter(Q(user=user) & Q(restaurant=restaurant)).count()
+        return Response(count)

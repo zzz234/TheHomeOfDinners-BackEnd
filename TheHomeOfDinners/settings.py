@@ -139,6 +139,8 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
+
 }
 
 # 修改Django认证系统的用户模型类
@@ -248,3 +250,7 @@ LOGGING = {
         }
     },
 }
+
+# 设置上传文件的保存目录
+MEDIA_URL = '/pictures/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
