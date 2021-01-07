@@ -93,6 +93,18 @@ class CollectionModelViewSet(ModelViewSet):
     queryset = Collection.objects.all()
     serializer_class = CollectionSerializer
 
+    @action(methods=['post'], detail=False)
+    def del_by_user_restaurant(self, request):
+        """
+        取消收藏
+        :param request: 'user','restaurant'
+        """
+        user = request.data['user']
+        restaurant = request.data['restaurant']
+        collection = Collection.objects.get(Q(user=user) & Q(restaurant=restaurant))
+        collection.delete()
+        return Response("删除成功!")
+
     @action(methods=['get'], detail=True)
     def collection_count(self, request, pk):
         """获取餐馆被收藏的数目"""
