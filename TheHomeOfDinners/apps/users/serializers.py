@@ -55,7 +55,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
     def validate_allow(self, value):
         """是否同意协议校验"""
-        if value != 'true':
+        if value.lower() != 'true':
             raise serializers.ValidationError('请同意用户协议')
         return value
 
