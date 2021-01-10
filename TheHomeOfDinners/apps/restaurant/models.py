@@ -24,6 +24,9 @@ class Restaurant(models.Model):
         verbose_name = '餐馆'
         verbose_name_plural = verbose_name
 
+    def __str__(self):
+        return self.res_name
+
 
 class Menu(models.Model):
     # 设置所属餐馆外键，当餐馆注销时，菜单也被注销
@@ -32,12 +35,17 @@ class Menu(models.Model):
     name = models.CharField(max_length=20, verbose_name='菜品名称')
     picture = models.ImageField(upload_to='menu', null=True, blank=True, verbose_name='菜品封面图片')
     recommendations = models.IntegerField(verbose_name='推荐数', default=0)
-    price = models.FloatField(verbose_name='单价')
+    price = models.FloatField(verbose_name='单价', default=0.0)
 
     class Meta:
         db_table = 'tb_menu'
         verbose_name = '菜单'
         verbose_name_plural = verbose_name
+        unique_together = ["restaurant", "name", ]
+        index_together = ["restaurant", "name", ]
+
+    def __str__(self):
+        return self.restaurant.res_name + ' ' + self.name
 
 
 class Review(models.Model):
@@ -49,13 +57,16 @@ class Review(models.Model):
                                    related_name='restaurant_review')
     datetime = models.DateTimeField(verbose_name='评论时间', auto_now_add=True)
     text = models.CharField(max_length=1000, verbose_name='评论内容')
-    score = models.FloatField(verbose_name='餐馆评分')
+    score = models.IntegerField(verbose_name='餐馆评分')
     depend = models.ForeignKey(to='self', blank=True, null=True, on_delete=models.CASCADE, verbose_name='所属评论')
 
     class Meta:
         db_table = 'tb_review'
         verbose_name = '评论'
         verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.user.get_username() + ' ' + self.restaurant.res_name
 
 
 class Collection(models.Model):
@@ -103,3 +114,6 @@ class Tag(models.Model):
         db_table = 'tb_tag'
         verbose_name = '标签'
         verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.tag_name

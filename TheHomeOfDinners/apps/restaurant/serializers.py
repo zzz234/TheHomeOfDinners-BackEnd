@@ -2,10 +2,12 @@ import re
 
 from rest_framework import serializers
 
-from restaurant.models import Restaurant, Tag, Collection
+from restaurant.models import Restaurant, Tag, Collection, Menu, Review
 
 
 class RestaurantSerializer(serializers.ModelSerializer):
+    # 餐馆序列化器
+
     # 添加收藏数字段
     collection_count = serializers.SerializerMethodField(label='收藏数')
 
@@ -14,7 +16,6 @@ class RestaurantSerializer(serializers.ModelSerializer):
 
     # foods = serializers.CharField(label='菜品', read_only=True)
 
-    # 餐馆序列化器
     class Meta:
         model = Restaurant
         fields = '__all__'
@@ -51,3 +52,17 @@ class CollectionSerializer(serializers.ModelSerializer):
         model = Collection
         fields = '__all__'
         read_only_fields = ['datetime']
+
+
+class MenuSerializer(serializers.ModelSerializer):
+    # 菜单序列化器
+    class Meta:
+        model = Menu
+        fields = '__all__'
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    # 评论序列化器
+    class Meta:
+        model = Review
+        fields = '__all__'

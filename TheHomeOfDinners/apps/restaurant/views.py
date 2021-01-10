@@ -1,6 +1,8 @@
+import json
 import os
 
-from django.db.models import Q
+from django.db.models import Q, F, Avg, Count
+from rest_framework import status
 # Create your views here.
 from rest_framework.decorators import action
 from rest_framework.generics import GenericAPIView
@@ -9,8 +11,8 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 import parameters
-from restaurant.serializers import RestaurantSerializer, CollectionSerializer
-from .models import Restaurant, Tag, Collection
+from restaurant.serializers import RestaurantSerializer, CollectionSerializer, MenuSerializer, ReviewSerializer
+from .models import Restaurant, Tag, Collection, Menu, Review
 from .utils import MyPageNumberPagination
 
 
@@ -18,6 +20,38 @@ class RestaurantModelViewSet(ModelViewSet):
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantSerializer
     pagination_class = MyPageNumberPagination
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+
+        try:
+            # 删除之前的图片
+            os.remove(instance.picture.path)
+        except Exception:
+            pass
+
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
+
+    @action(methods=['get'], detail=True)
+    def reviews_count(self, request, pk):
+        counts = Review.objects.filter(restaurant=pk) \
+            .values('score') \
+            .annotate(count=Count('score')) \
+            .values_list('score', 'count')
+        res = {}
+        for count in counts:
+            res[count[0]] = count[1]
+        return Response(res)
 
 
 class TagRestaurantDetailView(GenericAPIView):
@@ -77,6 +111,7 @@ class TagDetailView(APIView):
 class CollectionModelViewSet(ModelViewSet):
     queryset = Collection.objects.all()
     serializer_class = CollectionSerializer
+    pagination_class = MyPageNumberPagination
 
     @action(methods=['post'], detail=False)
     def del_by_user_restaurant(self, request):
@@ -100,8 +135,9 @@ class CollectionModelViewSet(ModelViewSet):
     def restaurant(self, request, pk):
         """获取收藏的餐馆列表"""
         restaurants = Restaurant.objects.filter(restaurant_collection__user_id=pk)
+        restaurants = self.paginate_queryset(restaurants)
         serializer = RestaurantSerializer(instance=restaurants, many=True)
-        return Response(serializer.data)
+        return self.get_paginated_response(serializer.data)
 
     @action(methods=['post'], detail=False)
     def collected(self, request):
@@ -109,3 +145,83 @@ class CollectionModelViewSet(ModelViewSet):
         user, restaurant = request.data['user'], request.data['restaurant']
         count = Collection.objects.filter(Q(user=user) & Q(restaurant=restaurant)).count()
         return Response(count)
+
+
+class MenuModelViewSet(ModelViewSet):
+    queryset = Menu.objects.all()
+    serializer_class = MenuSerializer
+    pagination_class = MyPageNumberPagination
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+
+        try:
+            # 删除之前的图片
+            os.remove(instance.picture.path)
+        except Exception:
+            pass
+
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
+
+    @action(methods=['get'], detail=True)
+    def restaurant_menu(self, request, pk):
+        """根据餐馆id获取菜单列表"""
+        menu = Menu.objects.filter(restaurant=pk).order_by('-recommendations')
+        menu = self.paginate_queryset(menu)
+        serializer = self.get_serializer(menu, many=True)
+        return self.get_paginated_response(serializer.data)
+
+    @action(methods=['post'], detail=False)
+    def res_insert(self, request):
+        """测试用的接口，不要调用"""
+        request.data['name'] = str(request.data['picture']).split('.')[0]
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @action(methods=['post'], detail=False)
+    def recommended(self, request):
+        """
+        为指定菜品添加一个推荐数
+        post的body中携带参数menus，格式为[1,2,3,4]
+        """
+        menus = json.loads(request.data['menus'])
+        count = Menu.objects.filter(id__in=menus).update(recommendations=F('recommendations') + 1)
+        return Response(count)
+
+
+class ReviewModelViewSet(ModelViewSet):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    pagination_class = MyPageNumberPagination
+
+    @action(methods=['get'], detail=True)
+    def restaurant_review(self, request, pk):
+        reviews = Review.objects.filter(restaurant=pk)
+        reviews = self.paginate_queryset(reviews)
+        serializer = self.get_serializer(reviews, many=True)
+        return self.get_paginated_response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        restaurant = request.data['restaurant']
+        score = Review.objects.filter(restaurant=restaurant).values('restaurant').annotate(
+            avg_score=Avg('score')).values_list(
+            'avg_score')[0][0]
+        Restaurant.objects.filter(id=restaurant).update(score=score)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)

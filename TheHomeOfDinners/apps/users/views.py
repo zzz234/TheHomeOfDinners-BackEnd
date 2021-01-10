@@ -22,9 +22,12 @@ class UserView(CreateAPIView):
 
 
 class UsernameCountView(APIView):
-    """判断用户是否已注册"""
 
     def get(self, request):
+        """
+        判断用户是否已存在
+        127.0.0.1:8000/username/count?username=yxb
+        """
         username = request.GET['username']
         if not re.match(r'\w{5,20}$', username):
             return Response({'message': '用户名格式错误'})
@@ -42,9 +45,12 @@ class UsernameCountView(APIView):
 
 
 class MobileCountView(APIView):
-    """判断用户是否已注册"""
 
     def get(self, request):
+        """
+        判断手机号是否已存在
+        127.0.0.1:8000/mobile/count?mobile=12345678910
+        """
         mobile = request.GET['mobile']
         if not re.match(r'1[3-9]\d{9}', mobile):
             return Response({'message': '用户名格式错误'})
@@ -64,18 +70,12 @@ class MobileCountView(APIView):
 class UserDetailView(RetrieveAPIView):
     """用户详细信息操作视图"""
     serializer_class = UserDetailSerializer
-    # queryset = User.objects.all()
+    queryset = User.objects.all()
     # permission_classes = [IsAuthenticated]  # 指定权限，只有通过认证的用户才能访问当前视图
 
-    # def get(self, request, pk):
-    #     pk = int(pk)
-    #     user = User.objects.get(pk=pk)
-    #     serializer = UserDetailSerializer(user)
-    #     return Response(serializer.data)
-
-    def get_object(self):
-        # 返回当前user对象
-        return self.request.user  # 因为已经确定了用户通过权限认证，所以此处的user不是匿名对象，有真实数据
+    # def get_object(self):
+    #     # 返回当前user对象
+    #     return self.request.user  # 因为已经确定了用户通过权限认证，所以此处的user不是匿名对象，有真实数据
 
     def put(self, request):
         # 修改user属性

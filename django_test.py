@@ -15,7 +15,9 @@ def main():
     # Test3()
     # Test4()
     # Test5()
-    Test6()
+    # Test6()
+    # Test7()
+    Test8()
 
 
 def Test1():
@@ -84,10 +86,29 @@ def Test5():
     user.set_password('123456789')
     user.save()
 
+
 def Test6():
     from restaurant.models import Restaurant
     restaurants = Restaurant.objects.all()
 
+
+def Test7():
+    from restaurant.models import Review
+    from django.db.models import Avg, Count
+    score = Review.objects.filter(restaurant=6).values('restaurant').annotate(avg_score=Avg('score')).values_list(
+        'avg_score')[0][0]
+    print(score)
+
+
+def Test8():
+    from restaurant.models import Review
+    from django.db.models import Avg, Count
+    counts = Review.objects.filter(restaurant=6).values('score').annotate(count=Count('score')).values_list('score',
+                                                                                                      'count')
+    res = {}
+    for count in counts:
+        res[count[0]] = count[1]
+    print(res)
 
 
 if __name__ == '__main__':
