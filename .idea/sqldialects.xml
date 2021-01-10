@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SqlDialectMappings">
+    <file url="file://$USER_HOME$/Desktop/sql1/the_home_of_dinners_auth_group.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/sql1/the_home_of_dinners_auth_group_permissions.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/sql1/the_home_of_dinners_auth_permission.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/sql1/the_home_of_dinners_django_admin_log.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/sql1/the_home_of_dinners_django_content_type.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/sql1/the_home_of_dinners_django_migrations.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/sql1/the_home_of_dinners_django_session.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/sql1/the_home_of_dinners_tb_collection.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/sql1/the_home_of_dinners_tb_menu.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/sql1/the_home_of_dinners_tb_pictures.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/sql1/the_home_of_dinners_tb_restaurant.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/sql1/the_home_of_dinners_tb_review.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/sql1/the_home_of_dinners_tb_tag.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/sql1/the_home_of_dinners_tb_tag_restaurant.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/sql1/the_home_of_dinners_tb_users.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/sql1/the_home_of_dinners_tb_users_groups.sql" dialect="MySQL" />
+    <file url="file://$USER_HOME$/Desktop/sql1/the_home_of_dinners_tb_users_user_permissions.sql" dialect="MySQL" />
+  </component>
+</project>

@@ -12,3 +12,4 @@ urlpatterns = [
 router.register('restaurant', views.RestaurantModelViewSet)
 router.register('collection', views.CollectionModelViewSet)
 urlpatterns += router.urls
+print(urlpatterns)

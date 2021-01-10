@@ -3,6 +3,7 @@ import os
 from django.db.models import Q
 # Create your views here.
 from rest_framework.decorators import action
+from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
@@ -18,26 +19,10 @@ class RestaurantModelViewSet(ModelViewSet):
     serializer_class = RestaurantSerializer
     pagination_class = MyPageNumberPagination
 
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
 
-        # 删除之前的图片
-        os.remove(instance.picture.path)
-
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-
-        if getattr(instance, '_prefetched_objects_cache', None):
-            # If 'prefetch_related' has been applied to a queryset, we need to
-            # forcibly invalidate the prefetch cache on the instance.
-            instance._prefetched_objects_cache = {}
-
-        return Response(serializer.data)
-
-
-class TagRestaurantDetailView(APIView):
+class TagRestaurantDetailView(GenericAPIView):
+    serializer_class = RestaurantSerializer
+    pagination_class = MyPageNumberPagination
 
     def get(self, request, param):
         """根据标签查询餐馆"""
@@ -59,10 +44,10 @@ class TagRestaurantDetailView(APIView):
             restaurant = Restaurant.objects.filter(tag__tag_name=param1)
         if param2:
             restaurant = restaurant.filter(tag__tag_name=param2)
-        pagination = MyPageNumberPagination()  # 分页器
-        restaurant = pagination.paginate_queryset(restaurant, request, self)  # 获取分页数据
-        serializer = RestaurantSerializer(instance=restaurant, many=True)  # 序列化
-        return pagination.get_paginated_response(serializer.data)  # 返回分页类型
+        # 对返回结果进行处理
+        restaurant = self.paginate_queryset(restaurant)  # 获取分页数据
+        serializer = self.get_serializer(restaurant, many=True)
+        return self.get_paginated_response(serializer.data)  # 返回分页类型
 
 
 class TagDetailView(APIView):

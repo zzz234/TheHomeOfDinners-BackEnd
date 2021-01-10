@@ -30,7 +30,7 @@ class Menu(models.Model):
     restaurant = models.ForeignKey(to=Restaurant, on_delete=models.CASCADE, verbose_name='所属餐馆',
                                    related_name='menu')
     name = models.CharField(max_length=20, verbose_name='菜品名称')
-    picture = models.CharField(max_length=400, verbose_name='菜品封面图片', null=True)
+    picture = models.ImageField(upload_to='menu', null=True, blank=True, verbose_name='菜品封面图片')
     recommendations = models.IntegerField(verbose_name='推荐数', default=0)
     price = models.FloatField(verbose_name='单价')
 
