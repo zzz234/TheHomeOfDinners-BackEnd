@@ -14,4 +14,3 @@ router.register('collection', views.CollectionModelViewSet)
 router.register('menu', views.MenuModelViewSet)
 router.register('review', views.ReviewModelViewSet)
 urlpatterns += router.urls
-print(urlpatterns)

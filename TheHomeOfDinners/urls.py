@@ -29,4 +29,3 @@ urlpatterns = [
     url(r'^docs/', include_docs_urls(title='My API title')),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-print(urlpatterns)

@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 
 from django.shortcuts import render
 from rest_framework import status
@@ -7,6 +8,8 @@ from rest_framework.generics import CreateAPIView, GenericAPIView, RetrieveAPIVi
 # Create your views here.
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_jwt.settings import api_settings
+from rest_framework_jwt.views import ObtainJSONWebToken, jwt_response_payload_handler
 
 from users.models import User
 from users.serializers import CreateUserSerializer, UserDetailSerializer
@@ -71,31 +74,70 @@ class UserDetailView(RetrieveAPIView):
     """用户详细信息操作视图"""
     serializer_class = UserDetailSerializer
     queryset = User.objects.all()
+
     # permission_classes = [IsAuthenticated]  # 指定权限，只有通过认证的用户才能访问当前视图
 
-    # def get_object(self):
-    #     # 返回当前user对象
-    #     return self.request.user  # 因为已经确定了用户通过权限认证，所以此处的user不是匿名对象，有真实数据
-
-    def put(self, request):
+    def put(self, request, pk):
         # 修改user属性
-        user = self.request.user
+        user = User.objects.get(id=pk)
         if 'username' in request.data:
             user.username = request.data['username']
         if 'password' in request.data:
             password = request.data['password']
             user.set_password(password)
+        if 'mobile' in request.data:
+            user.mobile = request.data['mobile']
         user.save()
         return Response(self.get_serializer(user).data)
 
-    def delete(self, request):
+    def delete(self, request, pk):
         # 删除user
         if 'password' not in request.data:
             return Response({'message': 'need password!'})
         password = request.data['password']
-        user = self.request.user
+        user = User.objects.get(id=pk)
         if user.check_password(password):
             user.delete()
             return Response({'message': 'delete successful!'})
         else:
             return Response({'message': 'password error!'})
+
+
+class UserLoginView(ObtainJSONWebToken):
+    # 重写了LoginView来进行错误检测
+    def post(self, request, *args, **kwargs):
+        # 先把role参数提出来
+        role = request.data['role']
+        username = request.data['username']
+        user_count = User.objects.filter(username=username).filter(role=role).count()
+        if user_count != 1:
+            return Response("指定角色没有相匹配的用户", status=status.HTTP_510_NOT_EXTENDED)
+        data = request.POST
+        # 记住旧的方式
+        _mutable = data._mutable
+        # 设置_mutable为True
+        data._mutable = True
+        # 改变你想改变的数据
+        del request.data['role']
+        # data['name'] = 'chenxinming'
+        # 恢复_mutable原来的属性
+        data._mutable = _mutable
+        # -------------------------------------------------
+
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+            user = serializer.object.get('user') or request.user
+            token = serializer.object.get('token')
+            response_data = jwt_response_payload_handler(token, user, request)
+            response = Response(response_data)
+            if api_settings.JWT_AUTH_COOKIE:
+                expiration = (datetime.utcnow() +
+                              api_settings.JWT_EXPIRATION_DELTA)
+                response.set_cookie(api_settings.JWT_AUTH_COOKIE,
+                                    token,
+                                    expires=expiration,
+                                    httponly=True)
+            return response
+
+        return Response(serializer.errors, status=status.HTTP_509_BANDWIDTH_LIMIT_EXCEEDED)

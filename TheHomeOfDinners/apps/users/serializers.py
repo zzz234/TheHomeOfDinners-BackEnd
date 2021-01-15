@@ -64,12 +64,12 @@ class CreateUserSerializer(serializers.ModelSerializer):
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError('两个密码不一致')
 
-        # # 校验验证码
-        # if time.time() - parameters.w_time > 300:
-        #     raise serializers.ValidationError('无效的验证码')
-        #
-        # if attrs['mobile'] != parameters.mobile or attrs['sms_code'] != parameters.sms_code:
-        #     raise serializers.ValidationError('验证码错误')
+        # 校验验证码
+        if time.time() - parameters.w_time > 300:
+            raise serializers.ValidationError('无效的验证码')
+
+        if attrs['mobile'] != parameters.mobile or attrs['sms_code'] != parameters.sms_code:
+            raise serializers.ValidationError('验证码错误')
 
         return attrs
 
@@ -101,7 +101,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'mobile', 'password', 'role']
+        fields = ['id', 'username', 'mobile', 'password', 'role', 'picture']
         extra_kwargs = {  # 修改字段选项
             'password': {
                 'write_only': True,

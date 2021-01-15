@@ -10,11 +10,8 @@ class RestaurantSerializer(serializers.ModelSerializer):
 
     # 添加收藏数字段
     collection_count = serializers.SerializerMethodField(label='收藏数')
-
-    # picture = serializers.ImageField(
-    #     max_length=None, use_url=True, allow_null=True, required=False)
-
-    # foods = serializers.CharField(label='菜品', read_only=True)
+    # 添加评论数字段
+    review_count = serializers.SerializerMethodField(label='评论数')
 
     class Meta:
         model = Restaurant
@@ -23,6 +20,11 @@ class RestaurantSerializer(serializers.ModelSerializer):
     def get_collection_count(self, obj):
         """获取餐馆的收藏数"""
         count = obj.restaurant_collection.count()
+        return count
+
+    def get_review_count(self, obj):
+        """获取餐馆的评论数"""
+        count = obj.restaurant_review.count()
         return count
 
     def validate_mobile(self, value):
@@ -62,6 +64,9 @@ class MenuSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    res_name = serializers.CharField(source='restaurant.res_name', read_only=True)
+    username = serializers.CharField(source='user.username', read_only=True)
+
     # 评论序列化器
     class Meta:
         model = Review

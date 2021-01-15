@@ -4,6 +4,8 @@ from rest_framework_jwt.views import obtain_jwt_token
 from . import views
 from rest_framework.routers import SimpleRouter
 
+from .views import UserLoginView
+
 urlpatterns = [
     # 注册用户
     url(r'^users/$', views.UserView.as_view()),
@@ -14,7 +16,8 @@ urlpatterns = [
     url(r'^mobile/count$', views.MobileCountView.as_view()),
     # url(r'^mobiles/(?P<mobile>1[3-9]\d{9})/count/$', views.MobileCountView.as_view()),
     # JWT登录
-    url(r'^login/$', obtain_jwt_token),  # 内部认证代码还是Django中的  登录成功生成token
+    # url(r'^login/$', obtain_jwt_token),  # 内部认证代码还是Django中的  登录成功生成token
+    url(r'^login/$', UserLoginView.as_view()),  # 内部认证代码还是Django中的  登录成功生成token
 
     # 获取用户详情
     url(r'^user/(?P<pk>[^/.]+)/$', views.UserDetailView.as_view()),

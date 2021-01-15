@@ -39,12 +39,13 @@ class UsernameMobileAuthBackend(ModelBackend):
 
     def authenticate(self, request, username=None, password=None, **kwargs):
         # 对从username中取出role
-        role = username[0]
-        username = username[1:]
+        # role = username[0]
+        # username = username[1:]
         # 获取user
         user = get_user_by_account(username)
 
         # 判断传入的密码是否正确
-        if user and user.check_password(password) and user.role == role:
+        if user and user.check_password(password):
+        # if user and user.check_password(password) and user.role == role:
             # 返回user
             return user

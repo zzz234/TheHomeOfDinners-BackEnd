@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 """Django's command-line utility for administrative tasks."""
+import json
 import os
-import sys
+import time
+from google_trans_new import google_translator
+from TheHomeOfDinners.AIModule import analyze
 
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'TheHomeOfDinners.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'TheHomeOfDinners.dev_settings')
     import django
     django.setup()
 
@@ -17,7 +20,8 @@ def main():
     # Test5()
     # Test6()
     # Test7()
-    Test8()
+    # Test8()
+    Test9()
 
 
 def Test1():
@@ -48,7 +52,7 @@ def Test1():
 
 
 def Test2():
-    from restaurant.models import Tag, Restaurant
+    from restaurant.models import Restaurant
     params = ['小吃', '四方坪']
     restaurant = Restaurant.objects.filter(tag__tag_name=params[0]).filter(tag__tag_name=params[1])
     print(restaurant.count())
@@ -71,10 +75,7 @@ def Test3():
 
 
 def Test4():
-    from users.models import User
-
     from restaurant.models import Restaurant
-    from restaurant.models import Collection
     # restaurants = Collection.objects.filter(user=6).values_list('restaurant')
     restaurant = Restaurant.objects.filter(restaurant_collection__user_id=2)
     print(restaurant)
@@ -94,7 +95,7 @@ def Test6():
 
 def Test7():
     from restaurant.models import Review
-    from django.db.models import Avg, Count
+    from django.db.models import Avg
     score = Review.objects.filter(restaurant=6).values('restaurant').annotate(avg_score=Avg('score')).values_list(
         'avg_score')[0][0]
     print(score)
@@ -102,13 +103,24 @@ def Test7():
 
 def Test8():
     from restaurant.models import Review
-    from django.db.models import Avg, Count
+    from django.db.models import Count
     counts = Review.objects.filter(restaurant=6).values('score').annotate(count=Count('score')).values_list('score',
-                                                                                                      'count')
+                                                                                                            'count')
     res = {}
     for count in counts:
         res[count[0]] = count[1]
     print(res)
+
+
+def Test9():
+    from restaurant.models import Review
+    from restaurant.utils import generateWordCloud
+    reviews = Review.objects.filter(restaurant=8).values_list('text')
+    res = []
+    for review in reviews:
+        res.append(review[0])
+        print(''.join(res))
+    generateWordCloud(''.join(res), '8')
 
 
 if __name__ == '__main__':

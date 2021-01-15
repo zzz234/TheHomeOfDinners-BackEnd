@@ -55,10 +55,12 @@ class Review(models.Model):
     # 设置所属餐馆外键，当餐馆注销时，评论也被注销
     restaurant = models.ForeignKey(to=Restaurant, on_delete=models.CASCADE, verbose_name='所属餐馆',
                                    related_name='restaurant_review')
+    meal_time = models.CharField(max_length=100, verbose_name='就餐时间')
     datetime = models.DateTimeField(verbose_name='评论时间', auto_now_add=True)
     text = models.CharField(max_length=1000, verbose_name='评论内容')
     score = models.IntegerField(verbose_name='餐馆评分')
     depend = models.ForeignKey(to='self', blank=True, null=True, on_delete=models.CASCADE, verbose_name='所属评论')
+    analyze_result = models.CharField(max_length=1, blank=True, null=True, verbose_name='AI分析结果')
 
     class Meta:
         db_table = 'tb_review'

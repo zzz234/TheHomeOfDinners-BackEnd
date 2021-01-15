@@ -19,8 +19,8 @@ def send_message(phone, data):
     """
 
     sdk = SmsSDK(accId, accToken, appId)
-    tid = '容联云通讯平台创建的模板'
-    # tid = '1'
+    # tid = '容联云通讯平台创建的模板'
+    tid = '1'
     mobile = phone
     datas = (data, 5)
     resp = sdk.sendMessage(tid, mobile, datas)
