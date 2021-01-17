@@ -21,5 +21,7 @@ urlpatterns = [
 
     # 获取用户详情
     url(r'^user/(?P<pk>[^/.]+)/$', views.UserDetailView.as_view()),
+    # 更新用户图片
+    url(r'^uploadUserPicture/(?P<pk>[^/.]+)/$', views.UploadUserPictureView.as_view()),
 
 ]

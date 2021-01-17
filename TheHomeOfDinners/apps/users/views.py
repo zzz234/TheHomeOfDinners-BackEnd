@@ -1,3 +1,4 @@
+import os
 import re
 from datetime import datetime
 
@@ -101,6 +102,41 @@ class UserDetailView(RetrieveAPIView):
             return Response({'message': 'delete successful!'})
         else:
             return Response({'message': 'password error!'})
+
+    def post(self, request, pk):
+        """检查用户密码是否正确"""
+        if 'password' in request.data:
+            password = request.data['password']
+        else:
+            return Response("需要参数password", status=status.HTTP_406_NOT_ACCEPTABLE)
+        user = User.objects.get(id=pk)
+        return Response(user.check_password(password))
+
+
+class UploadUserPictureView(GenericAPIView):
+    serializer_class = UserDetailSerializer
+
+    def put(self, request, pk):
+        """更新用户图片，只传一个picture参数即可"""
+        instance = User.objects.get(id=pk)
+
+        try:
+            # 删除之前的图片
+            if request.data['picture']:
+                os.remove(instance.picture.path)
+        except Exception:
+            pass
+
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
 
 
 class UserLoginView(ObtainJSONWebToken):
