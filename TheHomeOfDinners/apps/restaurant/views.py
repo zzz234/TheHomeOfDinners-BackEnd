@@ -23,6 +23,26 @@ class RestaurantModelViewSet(ModelViewSet):
     serializer_class = RestaurantSerializer
     pagination_class = MyPageNumberPagination
 
+    def create(self, request, *args, **kwargs):
+        """创建餐馆，传入的标签参数为res_tag和res_region_tag"""
+        res_tag = res_region_tag = None
+        if 'res_tag' in request.data:
+            res_tag = request.data['res_tag']
+        if 'res_region_tag' in request.data:
+            res_region_tag = request.data['res_region_tag']
+        if not (res_tag and res_region_tag):
+            return Response("需要标签参数", status=status.HTTP_406_NOT_ACCEPTABLE)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+
+        res_id = int(serializer.data['id'])  # 获取餐馆id
+        # 为餐馆和标签添加关联
+        Tag.objects.get(tag_name=res_tag).restaurant.add(res_id)
+        Tag.objects.get(tag_name=res_region_tag).restaurant.add(res_id)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         # 根据参数名进行查询
