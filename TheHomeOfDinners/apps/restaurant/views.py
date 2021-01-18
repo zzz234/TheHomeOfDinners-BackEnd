@@ -118,6 +118,14 @@ class RestaurantModelViewSet(ModelViewSet):
             print(''.join(res))
         return Response(generateWordCloud(''.join(res), pk))
 
+    @action(methods=['get'], detail=True)
+    def get_by_owner(self, request, pk):
+        """根据商家id获取收藏的餐馆列表"""
+        restaurants = Restaurant.objects.filter(owner_id=pk)
+        restaurants = self.paginate_queryset(restaurants)
+        serializer = self.get_serializer(restaurants, many=True)
+        return self.get_paginated_response(serializer.data)
+
 
 class TagRestaurantDetailView(GenericAPIView):
     queryset = Restaurant.objects.all()
@@ -313,7 +321,7 @@ class ReviewModelViewSet(ModelViewSet):
         AI_score = analyze(serializer.data['text'])[0]
         Review.objects.filter(id=serializer.data['id']).update(analyze_result=AI_score)
         # 删除词云图片
-        wordCloudPath = os.path.join(BASE_DIR, 'media', 'wordClouds', restaurant + ".png")
+        wordCloudPath = os.path.join(BASE_DIR, 'media', 'wordClouds', str(restaurant) + ".png")
         if os.path.exists(wordCloudPath):
             os.remove(wordCloudPath)
 

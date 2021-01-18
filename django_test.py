@@ -124,4 +124,5 @@ def Test9():
 
 
 if __name__ == '__main__':
-    main()
+    print(analyze.analyze("太难吃了!!!"))
+    # main()
