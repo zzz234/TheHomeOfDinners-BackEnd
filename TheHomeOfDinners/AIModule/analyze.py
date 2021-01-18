@@ -8,6 +8,8 @@ import joblib
 from sklearn.feature_extraction.text import CountVectorizer
 from google_trans_new import google_translator
 
+from TheHomeOfDinners.settings import BASE_DIR
+
 vocabulary = None
 transformer = None
 svm = None
@@ -19,7 +21,7 @@ translator = google_translator()
 def do_initial():
     global vocabulary, transformer, svm, initialing
     initialing = True
-    base_url = os.path.abspath('TheHomeOfDinners\\AIModule\\models')
+    base_url = os.path.join(BASE_DIR, 'TheHomeOfDinners', 'AIModule', 'models')
     if not vocabulary:
         vocabulary = joblib.load(os.path.join(base_url, 'vocabulary.m'))  # 加载词库
         print('load vocabulary successful!')

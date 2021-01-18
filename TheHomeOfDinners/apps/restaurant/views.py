@@ -45,6 +45,7 @@ class RestaurantModelViewSet(ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
+        queryset = queryset.filter(verify=1)
         # 根据参数名进行查询
         if 'res_name' in request.GET:
             queryset = queryset.filter(res_name__contains=request.GET['res_name'])
@@ -122,6 +123,7 @@ class RestaurantModelViewSet(ModelViewSet):
     def get_by_owner(self, request, pk):
         """根据商家id获取收藏的餐馆列表"""
         restaurants = Restaurant.objects.filter(owner_id=pk)
+        restaurants = restaurants.filter(verify=1)
         restaurants = self.paginate_queryset(restaurants)
         serializer = self.get_serializer(restaurants, many=True)
         return self.get_paginated_response(serializer.data)
@@ -159,6 +161,7 @@ class TagRestaurantDetailView(GenericAPIView):
         # 根据参数名进行查询
         if 'res_name' in request.GET:
             restaurant = restaurant.filter(res_name__contains=request.GET['res_name'])
+        restaurant = restaurant.filter(verify=1)
         # 对返回结果进行处理
         restaurant = self.paginate_queryset(restaurant)  # 获取分页数据
         serializer = self.get_serializer(restaurant, many=True)
